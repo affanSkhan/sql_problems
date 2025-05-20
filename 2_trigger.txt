@@ -1,0 +1,133 @@
+3) library:
+
+DELIMITER //
+
+CREATE TRIGGER trg_update_noc_insert
+AFTER INSERT ON library
+FOR EACH ROW
+BEGIN
+    DECLARE v_noc_change INT;
+
+    IF NEW.status = 'ISSUE' THEN
+        SET v_noc_change = -1;
+    ELSEIF NEW.status = 'RETURN' THEN
+        SET v_noc_change = 1;
+    ELSE
+        SET v_noc_change = 0;
+    END IF;
+
+    IF v_noc_change != 0 THEN
+        INSERT INTO library_audit (bid, bname, noc)
+        VALUES (NEW.bid, NEW.bname, v_noc_change);
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE TRIGGER trg_update_noc_update
+AFTER UPDATE ON library
+FOR EACH ROW
+BEGIN
+    DECLARE v_noc_change INT;
+
+    IF NEW.status = 'ISSUE' THEN
+        SET v_noc_change = -1;
+    ELSEIF NEW.status = 'RETURN' THEN
+        SET v_noc_change = 1;
+    ELSE
+        SET v_noc_change = 0;
+    END IF;
+
+    IF v_noc_change != 0 THEN
+        INSERT INTO library_audit (bid, bname, noc)
+        VALUES (NEW.bid, NEW.bname, v_noc_change);
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_check_fine
+BEFORE UPDATE ON Library
+FOR EACH ROW
+BEGIN
+    DECLARE v_days INT;
+    DECLARE v_fine INT;
+
+    SET v_days = DATEDIFF(CURDATE(), NEW.doi);
+
+    IF v_days > 20 THEN
+        SET NEW.status = 'FINE';
+        SET v_fine = v_days * 10;
+
+        INSERT INTO Library_Audit (bid, bname, noc)
+        VALUES (NEW.bid, NEW.bname, v_fine);
+    END IF;
+END;
+$$
+
+DELIMITER ;
+
+
+
+
+-- Insert new book as issued
+INSERT INTO Library (bid, bname, doi, status)
+VALUES (101, 'C Programming', CURDATE() - INTERVAL 5 DAY, 'ISSUE');
+
+-- Return the book
+UPDATE Library
+SET status = 'RETURN'
+WHERE bid = 101;
+
+-- Test fine logic (> 20 days)
+INSERT INTO Library (bid, bname, doi, status)
+VALUES (102, 'DBMS Concepts', CURDATE() - INTERVAL 25 DAY, 'ISSUE');
+
+-- Trigger will automatically change status to FINE and log fine in audit
+UPDATE Library
+SET status = 'ISSUE'
+WHERE bid = 102;
+
+
+
+
+
+________________________________________________________________________
+
+
+4) library:
+
+
+CREATE TRIGGER trg_before_update_library
+BEFORE UPDATE ON library
+FOR EACH ROW
+BEGIN
+    INSERT INTO library_audit(bid, bname, noc)
+    VALUES ( OLD.bid, OLD.bname, -2);               -- -2 indicate update
+END;
+
+
+
+DELIMITER //
+
+CREATE TRIGGER trg_before_delete_library
+BEFORE DELETE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (bid, bname, noc)
+    VALUES (OLD.bid, OLD.bname, -1); -- -1 indicates deleted record
+END;
+//
+
+DELIMITER ;
+
