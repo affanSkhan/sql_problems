@@ -1,0 +1,125 @@
+Here is a short, simple, and basic example of MongoDB CRUD operations for the collection Orders(cust\_id, amount, status):
+
+💡 First, make sure MongoDB is running and you are in the MongoDB shell (or using a GUI like MongoDB Compass).
+
+Step 1: Use/Create Database
+
+```javascript
+use myShop
+```
+
+Step 2: Create Collection (optional, MongoDB creates it on first insert)
+
+```javascript
+db.createCollection("Orders")
+```
+
+Step 3: Create (Insert) Documents
+
+```javascript
+db.Orders.insertOne({ cust_id: 101, amount: 500, status: "Pending" })
+db.Orders.insertMany([
+  { cust_id: 102, amount: 800, status: "Completed" },
+  { cust_id: 103, amount: 300, status: "Cancelled" }
+])
+```
+
+Step 4: Read (Find) Documents
+
+```javascript
+db.Orders.find()  // Show all orders
+db.Orders.find({ status: "Pending" })  // Filtered find
+```
+
+Step 5: Update Documents
+
+```javascript
+// Update status for cust_id 101
+db.Orders.updateOne({ cust_id: 101 }, { $set: { status: "Completed" } })
+
+// Update amount for all Cancelled orders
+db.Orders.updateMany({ status: "Cancelled" }, { $set: { amount: 0 } })
+```
+
+Step 6: Delete Documents
+
+```javascript
+db.Orders.deleteOne({ cust_id: 103 })  // Delete one
+db.Orders.deleteMany({ status: "Cancelled" })  // Delete many
+```
+
+Let me know if you want this in a Node.js, Python, or Compass GUI version too.
+ 
+
+
+_________________________________________________________________________________________________________________________________________________________________
+
+
+
+Here are the MongoDB queries as per your requirements:
+
+✅ Step 1: Create a collection called games
+(MongoDB auto-creates a collection when you insert the first document.)
+
+```javascript
+use gameDB  // Create or switch to database
+```
+
+✅ Step 2: Add 5 games to the database
+
+```javascript
+db.games.insertMany([
+  {
+    name: "Speed Racer",
+    gametype: "Racing",
+    score: 85,
+    achievements: ["Speed Demon", "Drift King"]
+  },
+  {
+    name: "Battlefield X",
+    gametype: "Shooter",
+    score: 92,
+    achievements: ["Sharpshooter", "Game Master"]
+  },
+  {
+    name: "Brain Buster",
+    gametype: "Puzzle",
+    score: 78,
+    achievements: ["Thinker", "Game Master"]
+  },
+  {
+    name: "Ninja Jump",
+    gametype: "Action",
+    score: 96,
+    achievements: ["Speed Demon", "Game Master"]
+  },
+  {
+    name: "Castle Builder",
+    gametype: "Strategy",
+    score: 88,
+    achievements: ["Architect", "Planner"]
+  }
+])
+```
+
+✅ Step 3: Query to return all games
+
+```javascript
+db.games.find()
+```
+
+✅ Step 4: Query to return the 3 highest scored games
+
+```javascript
+db.games.find().sort({ score: -1 }).limit(3)
+```
+
+✅ Step 5: Query to return all games that have both 'Game Master' and 'Speed Demon' achievements
+
+```javascript
+db.games.find({ achievements: { $all: ["Game Master", "Speed Demon"] } })
+```
+
+Let me know if you'd like this in Node.js, Python, or want to add filtering or UI!
+ 
+
