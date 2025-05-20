@@ -1,0 +1,133 @@
+5)sites:
+
+var mapFunction = function() {
+  var date = new Date(this.dateofaccess);
+  var yearMonth = date.getFullYear() + "-" + (date.getMonth() + 1);
+  emit({ url: this.url, month: yearMonth }, 1);
+};
+
+
+var reduceFunction = function(key, values) {
+  return Array.sum(values);
+};
+
+
+db.sites.mapReduce(
+  mapFunction,
+  reduceFunction,
+  {
+    out: "site_access_by_month"
+  }
+);
+
+
+db.site_access_by_month.find().pretty();
+
+
+
+db.sites.insertMany([
+  { url: "https://example.com", dateofaccess: "2025-05-10" },
+  { url: "https://example.com", dateofaccess: "2025-05-12" },
+  { url: "https://example.com", dateofaccess: "2025-05-14" },
+  { url: "https://example.com", dateofaccess: "2025-06-01" },
+  { url: "https://another.com", dateofaccess: "2025-05-11" },
+  { url: "https://another.com", dateofaccess: "2025-05-15" },
+  { url: "https://another.com", dateofaccess: "2025-06-05" },
+  { url: "https://yetanother.com", dateofaccess: "2025-05-20" },
+  { url: "https://yetanother.com", dateofaccess: "2025-05-20" },
+  { url: "https://yetanother.com", dateofaccess: "2025-07-01" }
+]);
+
+
+
+
+
+
+___________________________________________________________________
+16) any example:
+
+db.Students.insertMany([
+  { stud_id: 1, stud_name: "Ali",   stud_addr: "Pune",   stud_marks: 75 },
+  { stud_id: 2, stud_name: "Sara",  stud_addr: "Mumbai", stud_marks: 85 },
+  { stud_id: 3, stud_name: "Raj",   stud_addr: "Pune",   stud_marks: 90 },
+  { stud_id: 4, stud_name: "John",  stud_addr: "Delhi",  stud_marks: 60 },
+  { stud_id: 5, stud_name: "Anita", stud_addr: "Mumbai", stud_marks: 70 }
+]);
+ 
+
+
+var mapFunction = function () {
+  emit(this.stud_addr, this.stud_marks);
+};
+
+
+var reduceFunction = function (key, values) {
+  return Array.sum(values);
+};
+
+
+
+db.Students.mapReduce(
+  mapFunction,
+  reduceFunction,
+  { out: "total_marks_by_address" }
+);
+
+
+
+db.total_marks_by_address.find().pretty();
+
+
+
+&&&&&&&&&&&&&&&&&&&&&&&
+
+CREATE TABLE students (
+  roll INT,
+  name VARCHAR(50),
+  m1 INT,
+  m2 INT,
+  m3 INT,
+  m4 INT
+);
+
+INSERT INTO students VALUES (1, 'Ali', 80, 85, 90, 95);
+INSERT INTO students VALUES (2, 'Sara', 70, 75, 80, 85);
+
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE calc_total_percentage()
+BEGIN
+  DECLARE done INT DEFAULT 0;
+  DECLARE r INT; 
+  DECLARE n VARCHAR(50);
+  DECLARE m1 INT;
+  DECLARE m2 INT;
+  DECLARE m3 INT;
+  DECLARE m4 INT;
+  DECLARE total INT;
+  DECLARE percent DECIMAL(5,2);
+  
+  DECLARE cur CURSOR FOR SELECT roll, name, m1, m2, m3, m4 FROM students;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+  OPEN cur;
+
+  read_loop: LOOP
+    FETCH cur INTO r, n, m1, m2, m3, m4;
+    IF done THEN 
+      LEAVE read_loop;
+    END IF;
+
+    SET total = m1 + m2 + m3 + m4;
+    SET percent = total / 4;
+
+    SELECT CONCAT('Roll: ', r, ', Name: ', n, ', Total: ', total, ', Percentage: ', percent);
+  END LOOP;
+
+  CLOSE cur;
+END //
+
+DELIMITER ;
