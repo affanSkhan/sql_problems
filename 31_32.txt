@@ -1,0 +1,184 @@
+Here’s a **short, simple, and fully working MySQL solution** for the `Citydetails` database with the required schema and queries:
+
+---
+
+### ✅ Step 1: Create Database and Table
+
+```sql
+CREATE DATABASE IF NOT EXISTS CityDB;
+USE CityDB;
+
+CREATE TABLE Citydetails (
+    _id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    area FLOAT,
+    population_total INT,
+    population_adults INT,
+    population_seniorcitizens INT,
+    sexratio FLOAT,
+    avgtemp FLOAT,
+    avgrainfall FLOAT,
+    longitude FLOAT,
+    latitude FLOAT
+);
+```
+
+---
+
+### ✅ Step 2: Insert Sample Data
+
+```sql
+INSERT INTO Citydetails (name, area, population_total, population_adults, population_seniorcitizens, sexratio, avgtemp, avgrainfall, longitude, latitude)
+VALUES
+('Pune', 516.0, 6800000, 5000000, 800000, 940, 25.5, 720.0, 73.8567, 18.5204),
+('Mumbai', 603.4, 20400000, 16000000, 1500000, 920, 27.0, 2000.0, 72.8777, 19.0760),
+('Delhi', 1484.0, 19000000, 14000000, 1800000, 910, 26.0, 800.0, 77.1025, 28.7041),
+('Nagpur', 227.0, 2900000, 2100000, 300000, 950, 26.5, 1100.0, 79.0882, 21.1458);
+```
+
+---
+
+### ✅ Step 3: Queries
+
+---
+
+**1. Find the total population in Pune**
+
+```sql
+SELECT population_total
+FROM Citydetails
+WHERE name = 'Pune';
+```
+
+---
+
+**2. Return all cities with total population greater than 10 million**
+
+```sql
+SELECT name, population_total
+FROM Citydetails
+WHERE population_total > 10000000;
+```
+
+---
+
+**3. Return the average population of all cities**
+
+```sql
+SELECT AVG(population_total) AS average_population
+FROM Citydetails;
+```
+
+---
+
+**4. Return cities with minimum and maximum population**
+
+```sql
+SELECT name, population_total
+FROM Citydetails
+WHERE population_total = (
+    SELECT MIN(population_total) FROM Citydetails
+)
+OR population_total = (
+    SELECT MAX(population_total) FROM Citydetails
+);
+```
+
+---
+
+Let me know if you want to normalize the table into two: `City` and `Geography`, or if you'd like to visualize data using any tools.
+ 
+
+
+
+
+________________________________________________________________________________________________________________________________________________
+
+
+
+Here is the **short, simple, and complete MySQL code** for creating the `Citydetails` database and solving the 4 queries you asked for using proper structure and indexing.
+
+---
+
+### ✅ Step 1: Create the Database and Table
+
+Since MySQL does **not support nested structures** like `(population(total, adults, ...))`, we **flatten** the schema properly:
+
+```sql
+CREATE DATABASE IF NOT EXISTS CityDB2;
+USE CityDB2;
+
+CREATE TABLE Citydetails (
+    _id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    area FLOAT,
+    population_total INT,
+    population_adults INT,
+    population_seniorcitizens INT,
+    sexratio FLOAT,
+    avgtemp FLOAT,
+    avgrainfall FLOAT,
+    longitude FLOAT,
+    latitude FLOAT
+);
+```
+
+---
+
+### ✅ Step 2: Insert Sample Data
+
+```sql
+INSERT INTO Citydetails (name, area, population_total, population_adults, population_seniorcitizens, sexratio, avgtemp, avgrainfall, longitude, latitude)
+VALUES
+('Pune', 516.0, 6800000, 5000000, 800000, 940, 25.5, 720.0, 73.8567, 18.5204),
+('Mumbai', 603.4, 20400000, 16000000, 1500000, 920, 27.0, 2000.0, 72.8777, 19.0760),
+('Delhi', 1484.0, 19000000, 14000000, 1800000, 910, 26.0, 800.0, 77.1025, 28.7041),
+('Nagpur', 227.0, 2900000, 2100000, 300000, 950, 26.5, 1100.0, 79.0882, 21.1458);
+```
+
+---
+
+### ✅ Step 3: Solve Queries
+
+#### 1. **Find area-wise total population and sort in increasing order**
+
+```sql
+SELECT area, SUM(population_total) AS total_population
+FROM Citydetails
+GROUP BY area
+ORDER BY total_population ASC;
+```
+
+---
+
+#### 2. **Retrieve name and area where average rainfall is greater than 60**
+
+```sql
+SELECT name, area
+FROM Citydetails
+WHERE avgrainfall > 60;
+```
+
+---
+
+#### 3. **Create index on city (name) and area, then find max population in Mumbai**
+
+```sql
+CREATE INDEX idx_city_area ON Citydetails(name, area);
+
+SELECT MAX(population_total) AS max_population
+FROM Citydetails
+WHERE name = 'Mumbai';
+```
+
+---
+
+#### 4. **Create index on name**
+
+```sql
+CREATE INDEX idx_city_name ON Citydetails(name);
+```
+
+---
+
+Let me know if you'd like to include composite indexes, foreign key relations, or normalization!
