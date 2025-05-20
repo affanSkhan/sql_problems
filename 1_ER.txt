@@ -1,0 +1,145 @@
+1) Bank databse:
+-- 1. Customer Table
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Address VARCHAR(255),
+    Phone VARCHAR(15)
+);
+
+-- 2. Branch Table
+CREATE TABLE Branch (
+    BranchID INT PRIMARY KEY,
+    BranchName VARCHAR(100),
+    BranchAddress VARCHAR(255)
+);
+
+-- 3. Account Table
+CREATE TABLE Account (
+    AcctNo INT PRIMARY KEY AUTO_INCREMENT,
+    Type VARCHAR(50),
+    Balance DECIMAL(12,2) CHECK (Balance >= 0),
+    BranchID INT,
+    CustomerID INT,
+    FOREIGN KEY (BranchID) REFERENCES Branch(BranchID),
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+-- 4. Transaction Table
+CREATE TABLE Transaction (
+    TxnID INT PRIMARY KEY,
+    TxnDate DATE,
+    Amount DECIMAL(10,2) CHECK (Amount >= 0),
+    TxnType VARCHAR(20) CHECK (TxnType IN ('Deposit', 'Withdrawal')),
+    AcctNo INT,
+    FOREIGN KEY (AcctNo) REFERENCES Account(AcctNo)
+);
+
+-- 5. Loan Table
+CREATE TABLE Loan (
+    LoanID INT PRIMARY KEY,
+    Amount DECIMAL(12,2),
+    LoanDate DATE,
+    CustomerID INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+
+
+___________________________________________________________________________________________________________________________________________________________
+
+
+
+2) COMPANY:
+
+-- 1. Department Table
+CREATE TABLE Department (
+    DeptID INT PRIMARY KEY,
+    DeptName VARCHAR(100) NOT NULL,
+    Location VARCHAR(100)
+);
+
+-- 2. Employee Table
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Position VARCHAR(50),
+    Salary DECIMAL(10,2) CHECK (Salary >= 0),
+    DeptID INT,
+    FOREIGN KEY (DeptID) REFERENCES Department(DeptID)
+);
+
+-- 3. Project Table
+CREATE TABLE Project (
+    ProjectID INT PRIMARY KEY,
+    ProjectName VARCHAR(100) NOT NULL,
+    Budget DECIMAL(12,2) CHECK (Budget >= 0),
+    DeptID INT,
+    FOREIGN KEY (DeptID) REFERENCES Department(DeptID)
+);
+
+-- 4. Assignment Table
+CREATE TABLE Assignment (
+    AssignID INT PRIMARY KEY,
+    EmployeeID INT,
+    ProjectID INT,
+    HoursWorked INT CHECK (HoursWorked >= 0),
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
+);
+
+
+
+
+__________________________________________________________________________________________
+3)BOOK
+
+
+-- 1. Author Table
+CREATE TABLE Author (
+    AuthorID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Country VARCHAR(50)
+);
+
+-- 2. Publisher Table
+CREATE TABLE Publisher (
+    PublisherID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(100)
+);
+
+-- 3. Book Table
+CREATE TABLE Book (
+    BookID INT PRIMARY KEY,
+    Title VARCHAR(100),
+    AuthorID INT,
+    PublisherID INT,
+    FOREIGN KEY (AuthorID) REFERENCES Author(AuthorID),
+    FOREIGN KEY (PublisherID) REFERENCES Publisher(PublisherID)
+);
+
+-- 4. Member Table
+CREATE TABLE Member (
+    MemberID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Phone VARCHAR(15)
+);
+
+-- 5. Issue Table
+CREATE TABLE Issue (
+    IssueID INT PRIMARY KEY,
+    BookID INT,
+    MemberID INT,
+    IssueDate DATE,
+    ReturnDate DATE,
+    FOREIGN KEY (BookID) REFERENCES Book(BookID),
+    FOREIGN KEY (MemberID) REFERENCES Member(MemberID)
+);
+
+
+
+
+
+_________________________________________________________________________________________________
+
