@@ -1,0 +1,302 @@
+Here’s how you can **implement indexing and querying** with MongoDB using the following example:
+
+### 📘 Collection: `Students`
+
+Fields: `stud_id`, `stud_name`, `stud_addr`, `stud_marks`
+
+---
+
+## 🔧 1. **Insert Sample Documents into MongoDB**
+
+First, let’s insert some student data into the `Students` collection:
+
+```js
+db.Students.insertMany([
+  { stud_id: 101, stud_name: "Affan", stud_addr: "Pune", stud_marks: 85 },
+  { stud_id: 102, stud_name: "Rahul", stud_addr: "Mumbai", stud_marks: 92 },
+  { stud_id: 103, stud_name: "Sneha", stud_addr: "Nagpur", stud_marks: 76 },
+  { stud_id: 104, stud_name: "Anjali", stud_addr: "Pune", stud_marks: 89 },
+  { stud_id: 105, stud_name: "Vikram", stud_addr: "Delhi", stud_marks: 95 }
+])
+```
+
+---
+
+## 📌 2. **Create Indexes**
+
+Indexes improve query performance. Here's how to create them:
+
+### a. **Create index on `stud_id` (for faster lookups by ID)**
+
+```js
+db.Students.createIndex({ stud_id: 1 })
+```
+
+### b. **Create index on `stud_marks` (for range queries and sorting)**
+
+```js
+db.Students.createIndex({ stud_marks: -1 }) // descending
+```
+
+### c. **Compound index on `stud_name` and `stud_addr`**
+
+```js
+db.Students.createIndex({ stud_name: 1, stud_addr: 1 })
+```
+
+---
+
+## 🔍 3. **Querying the Collection**
+
+### a. **Find student by `stud_id`**
+
+```js
+db.Students.find({ stud_id: 102 })
+```
+
+### b. **Find students from 'Pune'**
+
+```js
+db.Students.find({ stud_addr: "Pune" })
+```
+
+### c. **Find students with marks greater than 80**
+
+```js
+db.Students.find({ stud_marks: { $gt: 80 } })
+```
+
+### d. **Find students sorted by marks (descending)**
+
+```js
+db.Students.find().sort({ stud_marks: -1 })
+```
+
+### e. **Find students by name and address using compound index**
+
+```js
+db.Students.find({ stud_name: "Anjali", stud_addr: "Pune" })
+```
+
+---
+
+## 📈 4. **Check Indexes**
+
+To list all indexes created:
+
+```js
+db.Students.getIndexes()
+```
+
+---
+
+## 🧠 Bonus Tip: Explain Query
+
+To see if your query is using the index:
+
+```js
+db.Students.find({ stud_id: 102 }).explain("executionStats")
+```
+
+---
+
+Would you like a sample MongoDB shell script or Python (PyMongo) version of the same?
+ 
+
+_________________________________________________________________________________________________________________________________________________________________ 
+
+
+Certainly, Affan! Let's implement **all aggregation operations** and **types of indexing** in MongoDB using the collection:
+
+## 📘 Collection: `Employee`
+
+Fields: `emp_id`, `emp_name`, `emp_dept`, `salary`
+
+---
+
+### 🧾 Step 1: Insert Sample Documents
+
+```js
+db.Employee.insertMany([
+  { emp_id: 1, emp_name: "Affan", emp_dept: "IT", salary: 70000 },
+  { emp_id: 2, emp_name: "Sneha", emp_dept: "HR", salary: 50000 },
+  { emp_id: 3, emp_name: "Raj", emp_dept: "Finance", salary: 65000 },
+  { emp_id: 4, emp_name: "Anjali", emp_dept: "IT", salary: 72000 },
+  { emp_id: 5, emp_name: "Vikram", emp_dept: "HR", salary: 55000 }
+])
+```
+
+---
+
+## 🔄 Step 2: **Aggregation Operations**
+
+Aggregation is performed using the `aggregate()` function with stages like `$match`, `$group`, `$sort`, etc.
+
+---
+
+### 1️⃣ `$match` – Filter documents
+
+```js
+db.Employee.aggregate([
+  { $match: { emp_dept: "IT" } }
+])
+```
+
+---
+
+### 2️⃣ `$group` – Group by department and calculate total salary
+
+```js
+db.Employee.aggregate([
+  {
+    $group: {
+      _id: "$emp_dept",
+      total_salary: { $sum: "$salary" },
+      avg_salary: { $avg: "$salary" },
+      max_salary: { $max: "$salary" }
+    }
+  }
+])
+```
+
+---
+
+### 3️⃣ `$sort` – Sort by salary descending
+
+```js
+db.Employee.aggregate([
+  { $sort: { salary: -1 } }
+])
+```
+
+---
+
+### 4️⃣ `$project` – Show selected fields only
+
+```js
+db.Employee.aggregate([
+  {
+    $project: {
+      emp_name: 1,
+      emp_dept: 1,
+      salary: 1,
+      _id: 0
+    }
+  }
+])
+```
+
+---
+
+### 5️⃣ `$count` – Count total number of employees
+
+```js
+db.Employee.aggregate([
+  { $count: "total_employees" }
+])
+```
+
+---
+
+### 6️⃣ `$limit` and `$skip` – Pagination
+
+```js
+db.Employee.aggregate([
+  { $sort: { salary: -1 } },
+  { $skip: 1 },
+  { $limit: 2 }
+])
+```
+
+---
+
+### 7️⃣ `$addFields` – Add new computed field
+
+```js
+db.Employee.aggregate([
+  {
+    $addFields: {
+      bonus: { $multiply: ["$salary", 0.1] }
+    }
+  }
+])
+```
+
+---
+
+### 8️⃣ `$match` + `$group` (Combined use)
+
+```js
+db.Employee.aggregate([
+  { $match: { emp_dept: "HR" } },
+  {
+    $group: {
+      _id: "$emp_dept",
+      avg_salary: { $avg: "$salary" }
+    }
+  }
+])
+```
+
+---
+
+## 🧱 Step 3: Types of Indexing in MongoDB
+
+---
+
+### 🔹 1. **Single Field Index** – Fast access by `emp_id`
+
+```js
+db.Employee.createIndex({ emp_id: 1 })
+```
+
+---
+
+### 🔹 2. **Compound Index** – Access by multiple fields
+
+```js
+db.Employee.createIndex({ emp_dept: 1, salary: -1 })
+```
+
+---
+
+### 🔹 3. **Multikey Index** – For array fields (hypothetical case)
+
+If an employee has multiple skills:
+
+```js
+db.Employee.updateOne({ emp_id: 1 }, { $set: { skills: ["Java", "Python"] } })
+db.Employee.createIndex({ skills: 1 })
+```
+
+---
+
+### 🔹 4. **Text Index** – For full-text search on `emp_name`
+
+```js
+db.Employee.createIndex({ emp_name: "text" })
+db.Employee.find({ $text: { $search: "Affan" } })
+```
+
+---
+
+### 🔹 5. **Hashed Index** – For sharding or equality search
+
+```js
+db.Employee.createIndex({ emp_id: "hashed" })
+```
+
+---
+
+### 🔍 View All Indexes
+
+```js
+db.Employee.getIndexes()
+```
+
+---
+
+Would you like a script or GUI-based implementation (e.g., using MongoDB Compass) for the above steps? Or a Python (PyMongo) version for automation?
+ 
+
+
