@@ -1,0 +1,5 @@
+SELECT P.Pnumber, P.Dno, E.Lname, E.Address, E.Bdate
+FROM PROJECT P
+JOIN DEPARTMENT D ON P.Dno = D.Dno
+JOIN EMPLOYEE E ON D.Mgr_ssn = E.Ssn
+WHERE P.Plocation = 'Stafford';
