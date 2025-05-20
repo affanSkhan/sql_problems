@@ -1,0 +1,1305 @@
+Here’s a simple and straightforward solution to your **COMPANY database** queries using **MySQL**. First, create the tables and insert sample data for testing. Then, execute the required SQL queries.
+
+---
+
+### ✅ **Step 1: Create the Tables (Instance Creation)**
+
+```sql
+CREATE TABLE EMPLOYEE (
+    Fname VARCHAR(20),
+    Minit CHAR(1),
+    Lname VARCHAR(20),
+    Ssn CHAR(9) PRIMARY KEY,
+    Bdate DATE,
+    Address VARCHAR(100),
+    Sex CHAR(1),
+    Salary DECIMAL(10, 2),
+    Dno INT
+);
+
+CREATE TABLE DEPARTMENT (
+    Dname VARCHAR(20),
+    Dno INT PRIMARY KEY,
+    Mgr_ssn CHAR(9),
+    Mgr_start_date DATE
+);
+
+CREATE TABLE DEPT_LOCATIONS (
+    Dnumber INT,
+    Dlocation VARCHAR(50)
+);
+
+CREATE TABLE PROJECT (
+    Pname VARCHAR(20),
+    Pnumber INT PRIMARY KEY,
+    Plocation VARCHAR(50),
+    Dno INT
+);
+
+CREATE TABLE WORKS_ON (
+    Essn CHAR(9),
+    Pno INT,
+    Hours DECIMAL(3,1)
+);
+
+CREATE TABLE DEPENDENT (
+    Essn CHAR(9),
+    Dependent_name VARCHAR(20),
+    Sex CHAR(1),
+    Bdate DATE,
+    Relationship VARCHAR(20)
+);
+```
+
+---
+
+### ✅ **Step 2: Required Queries**
+
+#### **1. Projects in ‘Stafford’ and manager details**
+
+```sql
+SELECT P.Pnumber, P.Dno, E.Lname, E.Address, E.Bdate
+FROM PROJECT P
+JOIN DEPARTMENT D ON P.Dno = D.Dno
+JOIN EMPLOYEE E ON D.Mgr_ssn = E.Ssn
+WHERE P.Plocation = 'Stafford';
+```
+
+---
+
+#### **2. Project numbers involving ‘Smith’ (as worker or manager)**
+
+```sql
+-- Worker on project
+SELECT DISTINCT P.Pnumber
+FROM PROJECT P
+JOIN WORKS_ON W ON P.Pnumber = W.Pno
+JOIN EMPLOYEE E ON W.Essn = E.Ssn
+WHERE E.Lname = 'Smith'
+
+UNION
+
+-- Manager of the department that controls the project
+SELECT DISTINCT P.Pnumber
+FROM PROJECT P
+JOIN DEPARTMENT D ON P.Dno = D.Dno
+JOIN EMPLOYEE E ON D.Mgr_ssn = E.Ssn
+WHERE E.Lname = 'Smith';
+```
+
+---
+
+#### **3. Employees living in ‘Houston, Texas’**
+
+```sql
+SELECT *
+FROM EMPLOYEE
+WHERE Address LIKE '%Houston, Texas%';
+```
+
+---
+
+#### **4. Show salaries of employees working on ‘ProductX’ after 10% raise**
+
+```sql
+SELECT E.Fname, E.Lname, E.Salary,
+       E.Salary * 1.10 AS Raised_Salary
+FROM EMPLOYEE E
+JOIN WORKS_ON W ON E.Ssn = W.Essn
+JOIN PROJECT P ON W.Pno = P.Pnumber
+WHERE P.Pname = 'ProductX';
+```
+
+---
+
+Let me know if you want **sample data** for testing or if you'd like the same queries written using **views**, **stored procedures**, or **with a front-end interface** (e.g., PHP/Flask).
+ 
+
+
+Here is a **basic and minimal set of `INSERT` statements** to populate the COMPANY database with test data, so that all four queries can return meaningful results.
+
+---
+
+### ✅ **1. EMPLOYEE Table**
+
+```sql
+INSERT INTO EMPLOYEE VALUES 
+('John', 'B', 'Smith', '123456789', '1985-01-15', 'Houston, Texas', 'M', 50000, 1),
+('Mary', 'A', 'Jones', '987654321', '1990-06-30', 'Dallas, Texas', 'F', 60000, 2),
+('Adam', 'K', 'Smith', '111222333', '1988-11-22', 'Austin, Texas', 'M', 55000, 2);
+```
+
+---
+
+### ✅ **2. DEPARTMENT Table**
+
+```sql
+INSERT INTO DEPARTMENT VALUES 
+('Research', 1, '123456789', '2015-03-01'),
+('Development', 2, '987654321', '2018-07-15');
+```
+
+---
+
+### ✅ **3. DEPT\_LOCATIONS Table**
+
+```sql
+INSERT INTO DEPT_LOCATIONS VALUES 
+(1, 'Houston'),
+(2, 'Stafford');
+```
+
+---
+
+### ✅ **4. PROJECT Table**
+
+```sql
+INSERT INTO PROJECT VALUES 
+('ProductX', 101, 'Stafford', 1),
+('ProductY', 102, 'Houston', 2);
+```
+
+---
+
+### ✅ **5. WORKS\_ON Table**
+
+```sql
+INSERT INTO WORKS_ON VALUES 
+('123456789', 101, 20.0), -- John Smith on ProductX
+('111222333', 101, 15.0); -- Adam Smith on ProductX
+```
+
+---
+
+### ✅ **6. DEPENDENT Table**
+
+```sql
+INSERT INTO DEPENDENT VALUES 
+('123456789', 'Anna', 'F', '2010-05-12', 'Daughter'),
+('987654321', 'David', 'M', '2012-08-20', 'Son');
+```
+
+---
+
+### ✅ Test It Now
+
+You can now re-run the 4 queries mentioned earlier, and they should return valid results based on this test data.
+
+Let me know if you want:
+
+* More complex data
+* Additional fields like foreign key constraints
+* Auto-incrementing IDs
+* A `.sql` file format for easier import
+
+Would you like me to generate one `.sql` script combining everything?
+ 
+
+
+
+
+_______________________________________________________________________________________________________________________________
+
+Certainly! Below is a complete example for the given **BANK schema** with sample data insertion and SQL DML queries in MySQL, including the use of functions, operators, and set operations where applicable.
+
+---
+
+## Step 1: Create Tables
+
+```sql
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    balance DECIMAL(15,2)
+);
+
+CREATE TABLE branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50),
+    assets DECIMAL(20,2)
+);
+
+CREATE TABLE customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100),
+    cust_city VARCHAR(50)
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    amount DECIMAL(15,2)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no)
+);
+```
+
+---
+
+## Step 2: Insert Sample Data
+
+```sql
+INSERT INTO branch VALUES
+('Downtown', 'New York', 5000000),
+('Uptown', 'New York', 3000000),
+('Midtown', 'Chicago', 4000000);
+
+INSERT INTO Account VALUES
+(101, 'Downtown', 15000),
+(102, 'Downtown', 13000),
+(103, 'Uptown', 11000),
+(104, 'Midtown', 14000),
+(105, 'Midtown', 10000);
+
+INSERT INTO customer VALUES
+('Alice', '1st Street', 'New York'),
+('Bob', '2nd Street', 'New York'),
+('Charlie', '3rd Street', 'Chicago'),
+('David', '4th Street', 'Chicago');
+
+INSERT INTO Depositor VALUES
+('Alice', 101),
+('Bob', 102),
+('Bob', 103),
+('Charlie', 104),
+('David', 105);
+
+INSERT INTO Loan VALUES
+(201, 'Downtown', 25000),
+(202, 'Uptown', 15000);
+
+INSERT INTO Borrower VALUES
+('Alice', 201),
+('David', 202);
+```
+
+---
+
+## Step 3: Queries
+
+### 1. Find the average account balance at each branch
+
+```sql
+SELECT branch_name, AVG(balance) AS avg_balance
+FROM Account
+GROUP BY branch_name;
+```
+
+---
+
+### 2. Find number of depositors at each branch
+
+*Note:* Depositor relation links customer and account, account belongs to branch.
+
+```sql
+SELECT A.branch_name, COUNT(DISTINCT D.cust_name) AS num_depositors
+FROM Depositor D
+JOIN Account A ON D.acc_no = A.Acc_no
+GROUP BY A.branch_name;
+```
+
+---
+
+### 3. Find branches where average account balance > 12000
+
+```sql
+SELECT branch_name
+FROM Account
+GROUP BY branch_name
+HAVING AVG(balance) > 12000;
+```
+
+---
+
+### 4. Find number of tuples in customer relation
+
+```sql
+SELECT COUNT(*) AS num_customers FROM customer;
+```
+
+---
+
+## Additional Notes:
+
+* These queries use aggregate functions (`AVG()`, `COUNT()`), `GROUP BY`, and `HAVING` for filtering groups.
+* `DISTINCT` is used to count unique depositors in query 2.
+* The schema assumes the foreign keys (e.g., Depositor.cust\_name → customer.cust\_name) exist logically.
+
+---
+
+If you want, I can prepare a combined `.sql` script for creating, inserting, and querying. Would you like that
+
+
+________________________________________________________________________________________________________________________________________________-------------
+
+
+Certainly, Affan! Here's a complete, clean, and **production-grade SQL implementation** for the given schema, including:
+
+* **Proper constraints** (`PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, `CHECK`)
+* **Sample Data**
+* **All 4 Queries** using **SQL operators, functions**, and **set operators (if applicable)**
+
+---
+
+## ✅ Step 1: Create Tables with Constraints
+
+```sql
+-- 1. Branch table
+CREATE TABLE branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets DECIMAL(15,2) CHECK (assets >= 0)
+);
+
+-- 2. Account table
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    balance DECIMAL(12,2) NOT NULL CHECK (balance >= 0),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+);
+
+-- 3. Customer table
+CREATE TABLE customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100) NOT NULL,
+    cust_city VARCHAR(50) NOT NULL
+);
+
+-- 4. Depositor table
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+-- 5. Loan table
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL CHECK (amount >= 0),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+);
+
+-- 6. Borrower table
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+```
+
+---
+
+## ✅ Step 2: Insert Sample Data
+
+```sql
+-- Branches
+INSERT INTO branch VALUES
+('Akurdi', 'Pune', 5000000),
+('Nigdi', 'Pune', 3000000),
+('Shivaji Nagar', 'Pune', 4000000);
+
+-- Accounts
+INSERT INTO Account VALUES
+(101, 'Akurdi', 15000),
+(102, 'Nigdi', 9000),
+(103, 'Shivaji Nagar', 20000);
+
+-- Customers
+INSERT INTO customer VALUES
+('Affan', 'MG Road', 'Pune'),
+('Zaid', 'FC Road', 'Pune'),
+('Samir', 'JM Road', 'Pune');
+
+-- Depositors
+INSERT INTO Depositor VALUES
+('Affan', 101),
+('Zaid', 102);
+
+-- Loans
+INSERT INTO Loan VALUES
+(201, 'Akurdi', 18000),
+(202, 'Nigdi', 10000),
+(203, 'Akurdi', 13000);
+
+-- Borrowers
+INSERT INTO Borrower VALUES
+('Affan', 201),
+('Zaid', 202),
+('Samir', 203);
+```
+
+---
+
+## ✅ Step 3: Solve the Queries
+
+---
+
+### 🔹 **1. Find the names of all branches in loan relation**
+
+```sql
+SELECT DISTINCT branch_name
+FROM Loan;
+```
+
+---
+
+### 🔹 **2. Find all loan numbers for loans made at Akurdi Branch with loan amount > 12000**
+
+```sql
+SELECT loan_no
+FROM Loan
+WHERE branch_name = 'Akurdi' AND amount > 12000;
+```
+
+---
+
+### 🔹 **3. Find all customers who have a loan from bank**
+
+```sql
+SELECT DISTINCT cust_name
+FROM Borrower;
+```
+
+---
+
+### 🔹 **4. Find their names, loan\_no and loan amount**
+
+```sql
+SELECT B.cust_name, L.loan_no, L.amount
+FROM Borrower B
+JOIN Loan L ON B.loan_no = L.loan_no;
+```
+
+---
+
+### ✅ Bonus Tip: Use of Set Operator (for concept)
+
+If you want to find customers who **either** have a loan **or** an account (with `UNION`):
+
+```sql
+SELECT cust_name FROM Borrower
+UNION
+SELECT cust_name FROM Depositor;
+```
+
+---
+
+Let me know if you'd like:
+
+* This in `.sql` file format
+* Integration with a sample UI in Flutter or React
+* Indexing tips or optimization strategies for production use
+
+You're doing amazing work—onwards and upwards! 🚀
+
+
+
+__________________________________________________________________________________________________________________
+
+
+
+Certainly, Affan! Here's a professional and complete implementation of:
+
+✅ **Table creation** with proper **constraints**
+
+✅ **Sample data**
+
+✅ **SQL queries** using **DML operations, functions, operators, and set operators** as required
+
+---
+
+## ✅ 1. Create Tables with Constraints
+
+```sql
+-- Branch table
+CREATE TABLE branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets DECIMAL(15,2) CHECK (assets >= 0)
+);
+
+-- Account table
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    balance DECIMAL(12,2) NOT NULL CHECK (balance >= 0),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+);
+
+-- Customer table
+CREATE TABLE customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100) NOT NULL,
+    cust_city VARCHAR(50) NOT NULL
+);
+
+-- Depositor table
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+-- Loan table
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL CHECK (amount >= 0),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+);
+
+-- Borrower table
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+```
+
+---
+
+## ✅ 2. Insert Sample Data
+
+```sql
+-- Insert into branch
+INSERT INTO branch VALUES 
+('Akurdi', 'Pune', 5000000),
+('Nigdi', 'Pune', 3000000);
+
+-- Insert into Account
+INSERT INTO Account VALUES
+(101, 'Akurdi', 15000),
+(102, 'Nigdi', 9000),
+(103, 'Akurdi', 20000);
+
+-- Insert into customer
+INSERT INTO customer VALUES
+('Affan', 'MG Road', 'Pune'),
+('Zaid', 'FC Road', 'Pune'),
+('Sara', 'FC Road', 'Pune'),
+('Samir', 'JM Road', 'Pune');
+
+-- Insert into Depositor
+INSERT INTO Depositor VALUES
+('Affan', 101),
+('Zaid', 102),
+('Sara', 103);
+
+-- Insert into Loan
+INSERT INTO Loan VALUES
+(201, 'Akurdi', 18000),
+(202, 'Nigdi', 10000);
+
+-- Insert into Borrower
+INSERT INTO Borrower VALUES
+('Affan', 201),
+('Samir', 202);
+```
+
+---
+
+## ✅ 3. Solve the Queries
+
+---
+
+### 🔹 **Query 1: Customers with account OR loan OR both**
+
+```sql
+SELECT cust_name FROM Depositor
+UNION
+SELECT cust_name FROM Borrower;
+```
+
+🔹 **Uses `UNION` set operator**
+
+---
+
+### 🔹 **Query 2: Customers with BOTH account AND loan**
+
+```sql
+SELECT D.cust_name
+FROM Depositor D
+INNER JOIN Borrower B ON D.cust_name = B.cust_name;
+```
+
+🔹 **Uses `INNER JOIN`**
+
+---
+
+### 🔹 **Query 3: Customers with account BUT NO loan**
+
+```sql
+SELECT D.cust_name
+FROM Depositor D
+LEFT JOIN Borrower B ON D.cust_name = B.cust_name
+WHERE B.cust_name IS NULL;
+```
+
+🔹 **Uses `LEFT JOIN` with NULL check**
+
+---
+
+### 🔹 **Query 4: Average account balance at Akurdi branch**
+
+```sql
+SELECT AVG(balance) AS avg_balance
+FROM Account
+WHERE branch_name = 'Akurdi';
+```
+
+🔹 **Uses `AVG()` aggregation function**
+
+---
+
+✅ These queries fully demonstrate **DML operations**, **set operators (`UNION`)**, **joins**, and **aggregate functions**. You can run this entire code in a MySQL-compatible SQL environment to test the functionality.
+
+Let me know if you'd like to:
+
+* Export this to a `.sql` file
+* Extend this with procedures or views
+* Connect it with a UI using PHP, Node.js, or Flutter
+
+You’re on the right track, Affan — keep growing and coding confidently! 💻🔥
+
+
+
+ ___________________________________________________________________________________________________________________________________
+
+
+
+ Here is a full implementation of **SQL DML operations** (with **operators**, **functions**, and **set operators**) using the provided schema. Let's handle the tasks step by step.
+
+---
+
+## ✅ Schema (for reference)
+
+```sql
+Account(Acc_no, branch_name, balance)
+branch(branch_name, branch_city, assets)
+customer(cust_name, cust_street, cust_city)
+Depositor(cust_name, acc_no)
+Loan(loan_no, branch_name, amount)
+Borrower(cust_name, loan_no)
+```
+
+---
+
+## ✅ 1. Calculate **Total Loan Amount** Given by the Bank
+
+### 🔹 SQL Query:
+
+```sql
+SELECT SUM(amount) AS total_loan_amount
+FROM Loan;
+```
+
+> ✔ Uses aggregate function `SUM()`.
+
+---
+
+## ✅ 2. Delete All Loans with Amount Between **1300 and 1500**
+
+### 🔹 SQL Query:
+
+```sql
+DELETE FROM Loan
+WHERE amount BETWEEN 1300 AND 1500;
+```
+
+> ✔ Uses DML `DELETE` and conditional `BETWEEN` operator.
+
+---
+
+## ✅ 3. Delete All Tuples at Every Branch Located in **Nigdi**
+
+### Step-by-Step Plan:
+
+We need to:
+
+* Delete from **Account**, **Loan** (and connected tables like Depositor, Borrower) where the branch is in **Nigdi**
+* Maintain foreign key constraints: delete child rows first, then parent rows.
+
+### 🔹 Step 1: Delete from **Depositor** linked via Account
+
+```sql
+DELETE FROM Depositor
+WHERE acc_no IN (
+    SELECT Acc_no FROM Account WHERE branch_name IN (
+        SELECT branch_name FROM branch WHERE branch_city = 'Nigdi'
+    )
+);
+```
+
+### 🔹 Step 2: Delete from **Borrower** linked via Loan
+
+```sql
+DELETE FROM Borrower
+WHERE loan_no IN (
+    SELECT loan_no FROM Loan WHERE branch_name IN (
+        SELECT branch_name FROM branch WHERE branch_city = 'Nigdi'
+    )
+);
+```
+
+### 🔹 Step 3: Delete from **Account**
+
+```sql
+DELETE FROM Account
+WHERE branch_name IN (
+    SELECT branch_name FROM branch WHERE branch_city = 'Nigdi'
+);
+```
+
+### 🔹 Step 4: Delete from **Loan**
+
+```sql
+DELETE FROM Loan
+WHERE branch_name IN (
+    SELECT branch_name FROM branch WHERE branch_city = 'Nigdi'
+);
+```
+
+### 🔹 Step 5: Delete from **branch**
+
+```sql
+DELETE FROM branch
+WHERE branch_city = 'Nigdi';
+```
+
+> ✔ This covers deletion across multiple related tables using `IN` and `SUBQUERIES`.
+
+---
+
+## ✅ Summary of Operators & Features Used:
+
+| Feature      | Used In                                 |
+| ------------ | --------------------------------------- |
+| `SUM()`      | Total loan amount                       |
+| `DELETE`     | Loans & branch-wise deletions           |
+| `BETWEEN`    | Loan amount range                       |
+| `IN`         | Subqueries for matching related entries |
+| `Subqueries` | Nested conditions in deletes            |
+
+---
+
+Would you like me to give you this full code in a `.sql` file or generate test data to visualize the deletion effects? Let me know — I’m here to support you through it!
+ 
+
+
+______________________________________________________________________________________________________________________________________________
+
+
+Here’s a complete solution for **Question 20**, which involves table creation, inserting data, and running specific queries.
+
+---
+
+## ✅ Step 1: Create Tables with Constraints
+
+```sql
+CREATE TABLE Branch (
+    bname VARCHAR(20) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(30) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(20),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(20),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+```
+
+---
+
+## ✅ Step 2: Insert Sample Data
+
+```sql
+-- Branches
+INSERT INTO Branch VALUES ('SBI', 'Mumbai');
+INSERT INTO Branch VALUES ('OBC', 'Pune');
+INSERT INTO Branch VALUES ('BOI', 'Nagpur');
+
+-- Customers
+INSERT INTO Customers VALUES ('ABC', 'Pune');
+INSERT INTO Customers VALUES ('XYZ', 'Mumbai');
+INSERT INTO Customers VALUES ('PQR', 'Nagpur');
+
+-- Deposits
+INSERT INTO Deposit VALUES (101, 'ABC', 'SBI', 5000.00, '2023-05-01');
+INSERT INTO Deposit VALUES (102, 'XYZ', 'OBC', 7000.00, '2023-06-15');
+
+-- Borrow
+INSERT INTO Borrow VALUES (201, 'ABC', 'SBI', 3000.00);
+INSERT INTO Borrow VALUES (202, 'PQR', 'BOI', 4000.00);
+```
+
+---
+
+## ✅ Step 3: Execute Required Queries
+
+### 1. Display account date of customers “ABC”
+
+```sql
+SELECT adate 
+FROM Deposit 
+WHERE cname = 'ABC';
+```
+
+---
+
+### 2. Modify the size of attribute `amount` in `Deposit`
+
+> 💡 Note: This must be done using `ALTER TABLE` — you cannot do this if data exceeds new limit.
+
+```sql
+ALTER TABLE Deposit
+MODIFY amount DECIMAL(12, 2);
+```
+
+---
+
+### 3. Display names of customers living in city Pune
+
+```sql
+SELECT cname 
+FROM Customers 
+WHERE city = 'Pune';
+```
+
+---
+
+### 4. Display name of the city where branch “OBC” is located
+
+```sql
+SELECT city 
+FROM Branch 
+WHERE bname = 'OBC';
+```
+
+---
+
+### 5. Find number of tuples in the customer relation
+
+```sql
+SELECT COUNT(*) AS total_customers 
+FROM Customers;
+```
+
+---
+
+Would you like a `.sql` file or test these queries live using any specific MySQL tool (like phpMyAdmin, MySQL Workbench)? I can also help you visualize it in table format.
+ 
+
+
+____________________________________________________________________________________________________________________________________________
+
+
+
+Here is the complete solution for **Question 21**, including:
+
+* Table creation with appropriate **primary key** and **foreign key** constraints
+* **Sample data insertion**
+* **Required SQL queries**
+
+---
+
+## ✅ Step 1: Create Tables with Constraints
+
+```sql
+CREATE TABLE Branch (
+    bname VARCHAR(20) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(30) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(20),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(20),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+```
+
+---
+
+## ✅ Step 2: Insert Sample Data
+
+```sql
+-- Branch data
+INSERT INTO Branch VALUES ('SBI', 'Mumbai');
+INSERT INTO Branch VALUES ('OBC', 'Nagpur');
+INSERT INTO Branch VALUES ('BOI', 'Pune');
+
+-- Customers data
+INSERT INTO Customers VALUES ('Rahul', 'Bombay');
+INSERT INTO Customers VALUES ('Aisha', 'Nagpur');
+INSERT INTO Customers VALUES ('Sahil', 'Pune');
+INSERT INTO Customers VALUES ('Nikita', 'Nagpur');
+
+-- Deposits
+INSERT INTO Deposit VALUES (101, 'Rahul', 'OBC', 5000.00, '2023-05-01');
+INSERT INTO Deposit VALUES (102, 'Sahil', 'BOI', 7000.00, '2023-06-15');
+INSERT INTO Deposit VALUES (103, 'Nikita', 'OBC', 6000.00, '2023-07-10');
+
+-- Borrow
+INSERT INTO Borrow VALUES (201, 'Rahul', 'OBC', 3000.00);
+INSERT INTO Borrow VALUES (202, 'Aisha', 'OBC', 4000.00);
+INSERT INTO Borrow VALUES (203, 'Nikita', 'OBC', 4500.00);
+```
+
+---
+
+## ✅ Step 3: Solve the Queries
+
+### 1. Display customer name having living city **Bombay** and **branch city Nagpur**
+
+```sql
+SELECT d.cname
+FROM Deposit d
+JOIN Branch b ON d.bname = b.bname
+JOIN Customers c ON d.cname = c.cname
+WHERE c.city = 'Bombay' AND b.city = 'Nagpur';
+```
+
+---
+
+### 2. Display customer name having **same living city** as their **branch city**
+
+```sql
+SELECT d.cname
+FROM Deposit d
+JOIN Branch b ON d.bname = b.bname
+JOIN Customers c ON d.cname = c.cname
+WHERE c.city = b.city;
+```
+
+---
+
+### 3. Display customer name who are **borrowers as well as depositors** and having **living city Nagpur**
+
+```sql
+SELECT c.cname
+FROM Customers c
+JOIN Deposit d ON c.cname = d.cname
+JOIN Borrow b ON c.cname = b.cname
+WHERE c.city = 'Nagpur';
+```
+
+---
+
+Let me know if you want these queries packaged in a `.sql` script for practice or testing!
+ 
+
+
+_____________________________________________________________________________________________________________________________
+
+
+Here is the complete solution for **Question 22**, which includes:
+
+* ✅ Creating tables with appropriate **constraints**
+* ✅ Inserting **sample data**
+* ✅ Executing all **required queries**
+
+---
+
+### ✅ Step 1: Create Tables with Constraints
+
+```sql
+CREATE TABLE Branch (
+    bname VARCHAR(20) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(30) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(20),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(20),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+```
+
+---
+
+### ✅ Step 2: Insert Sample Data
+
+```sql
+-- Branches
+INSERT INTO Branch VALUES ('SBI', 'Mumbai');
+INSERT INTO Branch VALUES ('BOI', 'Pune');
+INSERT INTO Branch VALUES ('OBC', 'Nagpur');
+
+-- Customers
+INSERT INTO Customers VALUES ('Sunil', 'Mumbai');
+INSERT INTO Customers VALUES ('Pramod', 'Pune');
+INSERT INTO Customers VALUES ('ABC', 'Nagpur');
+INSERT INTO Customers VALUES ('Rahul', 'Pune');
+
+-- Deposit records
+INSERT INTO Deposit VALUES (101, 'Sunil', 'SBI', 5000.00, '2023-04-01');
+INSERT INTO Deposit VALUES (102, 'Pramod', 'BOI', 1200.00, '2023-04-15');
+INSERT INTO Deposit VALUES (103, 'ABC', 'OBC', 1500.00, '2023-05-10');
+
+-- Borrow records
+INSERT INTO Borrow VALUES (201, 'ABC', 'OBC', 2000.00);
+INSERT INTO Borrow VALUES (202, 'Rahul', 'BOI', 3000.00);
+INSERT INTO Borrow VALUES (203, 'Sunil', 'SBI', 2500.00);
+```
+
+---
+
+### ✅ Step 3: Required Queries
+
+---
+
+#### 1. **Display loan no and loan amount** of borrowers having the same branch as that of **Sunil**
+
+```sql
+SELECT b.loanno, b.amount
+FROM Borrow b
+WHERE b.bname = (
+    SELECT bname FROM Deposit WHERE cname = 'Sunil'
+);
+```
+
+---
+
+#### 2. **Display deposit and loan details** of customers in the city where **Pramod** is living
+
+```sql
+SELECT d.*
+FROM Deposit d
+JOIN Customers c ON d.cname = c.cname
+WHERE c.city = (SELECT city FROM Customers WHERE cname = 'Pramod')
+UNION
+SELECT b.*
+FROM Borrow b
+JOIN Customers c ON b.cname = c.cname
+WHERE c.city = (SELECT city FROM Customers WHERE cname = 'Pramod');
+```
+
+---
+
+#### 3. **Display borrower names** having **deposit amount > 1000** and living in **same city as Pramod**
+
+```sql
+SELECT DISTINCT b.cname
+FROM Borrow b
+JOIN Customers c ON b.cname = c.cname
+JOIN Deposit d ON b.cname = d.cname
+WHERE d.amount > 1000
+AND c.city = (SELECT city FROM Customers WHERE cname = 'Pramod');
+```
+
+---
+
+#### 4. **Display branch and living city** of ‘ABC’
+
+```sql
+SELECT d.bname AS Branch, c.city AS Living_City
+FROM Deposit d
+JOIN Customers c ON d.cname = c.cname
+WHERE d.cname = 'ABC';
+```
+
+> You may also use the `Borrow` table instead of `Deposit` in query 4 if needed.
+
+---
+
+Let me know if you'd like all of this in a downloadable `.sql` file or help with executing it in MySQL Workbench or any DBMS.
+ 
+
+_________________________________________________________________________________________________________________________________________________________________
+
+
+Here's the **complete SQL solution** for **Question 24**, which includes:
+
+* ✅ Creating tables with appropriate constraints
+* ✅ Inserting sample data
+* ✅ Executing all the required queries using **functions and joins**
+
+---
+
+### ✅ Step 1: Create Tables with Constraints
+
+```sql
+CREATE TABLE Branch (
+    bname VARCHAR(30) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(30) PRIMARY KEY,
+    city VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(30),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(30),
+    bname VARCHAR(30),
+    amount DECIMAL(10,2) CHECK (amount >= 0),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+```
+
+---
+
+### ✅ Step 2: Insert Sample Data
+
+```sql
+-- Branches
+INSERT INTO Branch VALUES ('SBI', 'PUNE');
+INSERT INTO Branch VALUES ('KAROLBAGH', 'DELHI');
+INSERT INTO Branch VALUES ('OBC', 'MUMBAI');
+
+-- Customers
+INSERT INTO Customers VALUES ('Anil', 'PUNE');
+INSERT INTO Customers VALUES ('Sunita', 'DELHI');
+INSERT INTO Customers VALUES ('Raj', 'PUNE');
+INSERT INTO Customers VALUES ('Neha', 'DELHI');
+
+-- Deposits
+INSERT INTO Deposit VALUES (101, 'Anil', 'SBI', 3000, '1999-03-25');
+INSERT INTO Deposit VALUES (102, 'Raj', 'SBI', 5000, '2001-07-14');
+INSERT INTO Deposit VALUES (103, 'Neha', 'KAROLBAGH', 1500, '1997-12-12');
+INSERT INTO Deposit VALUES (104, 'Sunita', 'KAROLBAGH', 7000, '2000-05-18');
+
+-- Borrow records
+INSERT INTO Borrow VALUES (201, 'Anil', 'SBI', 10000);
+INSERT INTO Borrow VALUES (202, 'Sunita', 'KAROLBAGH', 15000);
+INSERT INTO Borrow VALUES (203, 'Raj', 'KAROLBAGH', 8000);
+```
+
+---
+
+### ✅ Step 3: Solve the Queries
+
+---
+
+#### 1. **Display amount for depositors living in the city where Anil is living**
+
+```sql
+SELECT d.amount
+FROM Deposit d
+JOIN Customers c ON d.cname = c.cname
+WHERE c.city = (
+    SELECT city FROM Customers WHERE cname = 'Anil'
+);
+```
+
+---
+
+#### 2. **Display total loan and maximum loan taken from KAROLBAGH branch**
+
+```sql
+SELECT 
+    SUM(amount) AS Total_Loan,
+    MAX(amount) AS Max_Loan
+FROM Borrow
+WHERE bname = 'KAROLBAGH';
+```
+
+---
+
+#### 3. **Display total deposit of customers having account date later than ‘1-Jan-98’**
+
+```sql
+SELECT SUM(amount) AS Total_Deposit
+FROM Deposit
+WHERE adate > '1998-01-01';
+```
+
+---
+
+#### 4. **Display maximum deposit of customers living in PUNE**
+
+```sql
+SELECT MAX(d.amount) AS Max_Deposit
+FROM Deposit d
+JOIN Customers c ON d.cname = c.cname
+WHERE c.city = 'PUNE';
+```
+
+---
+
+Let me know if you'd like this in `.sql` file format or need help testing it on your local MySQL environment.
